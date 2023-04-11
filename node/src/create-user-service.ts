@@ -6,12 +6,21 @@ type CreateUserServiceData = {
 }
 
 class CreateUserService {
-  perform({ name }: CreateUserServiceData) {
+  perform({ name, password }: CreateUserServiceData) {
     if (name && name.length < 3) {
       return {
         success: false,
         errors: {
           name: 'minimum_length',
+        },
+        data: null,
+      }
+    }
+    if (password && password.length < 8) {
+      return {
+        success: false,
+        errors: {
+          password: 'minimum_length',
         },
         data: null,
       }
