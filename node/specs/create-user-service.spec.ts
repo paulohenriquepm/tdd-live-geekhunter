@@ -43,6 +43,28 @@ describe('CreateUserService', () => {
         })
       })
     })
+
+    describe('but the password is not equal to password confirmation', () => {
+      it('returns password confirmation error at both password and password_confirmation fields', () => {
+        const createUserService = new CreateUserService()
+
+        const result = createUserService.perform({
+          name: 'John',
+          email: 'email@email.com',
+          password: '123456789',
+          password_confirmation: '123456798',
+        })
+
+        expect(result).toMatchObject({
+          success: false,
+          errors: {
+            password: 'password_confirmation',
+            password_confirmation: 'password_confirmation',
+          },
+          data: null,
+        })
+      })
+    })
   })
 
   describe('when missing required fields', () => {
