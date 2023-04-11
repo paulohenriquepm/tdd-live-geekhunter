@@ -65,6 +65,27 @@ describe('CreateUserService', () => {
         })
       })
     })
+
+    describe('but the email provided is already in use', () => {
+      it('returns an already in use error at email field', () => {
+        const createUserService = new CreateUserService()
+
+        const result = createUserService.perform({
+          name: 'John',
+          email: 'already_in_use@email.com',
+          password: '12345678',
+          password_confirmation: '12345678',
+        })
+
+        expect(result).toMatchObject({
+          success: false,
+          errors: {
+            email: 'already_in_use',
+          },
+          data: null,
+        })
+      })
+    })
   })
 
   describe('when missing required fields', () => {
