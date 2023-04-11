@@ -24,7 +24,7 @@ const validateLength = ({ name, password, errors }: ValidateLengthType) => {
 }
 
 class CreateUserService {
-  perform({ name, password }: CreateUserServiceData) {
+  perform({ name, password, password_confirmation }: CreateUserServiceData) {
     const errors = {}
 
     validateLength({ name, password, errors })
@@ -33,6 +33,21 @@ class CreateUserService {
       return {
         success: false,
         errors,
+        data: null,
+      }
+    }
+
+    if (
+      password &&
+      password_confirmation &&
+      password !== password_confirmation
+    ) {
+      return {
+        success: false,
+        errors: {
+          password: 'password_confirmation',
+          password_confirmation: 'password_confirmation',
+        },
         data: null,
       }
     }
