@@ -1,5 +1,12 @@
+type CreateUserServiceData = {
+  name: string
+  email: string
+  password: string
+  password_confirmation: string
+}
+
 class CreateUserService {
-  perform() {
+  perform({}: CreateUserServiceData) {
     return {
       success: false,
       errors: {
