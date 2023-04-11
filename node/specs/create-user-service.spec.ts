@@ -1,10 +1,16 @@
-import { CreateUserService } from '@src/create-user-service'
+import { CreateUserService, User } from '@src/create-user-service'
+
+let users: User[] = []
 
 describe('CreateUserService', () => {
+  beforeEach(() => {
+    users = []
+  })
+
   describe('when all required fields are provided', () => {
     describe('but the name length is less than 3', () => {
       it('returns a minimum length error at name field', () => {
-        const createUserService = new CreateUserService()
+        const createUserService = new CreateUserService(users)
 
         const result = createUserService.perform({
           name: 'Jo',
@@ -25,7 +31,7 @@ describe('CreateUserService', () => {
 
     describe('but the password length is less than 8', () => {
       it('returns a minimum length error at password field', () => {
-        const createUserService = new CreateUserService()
+        const createUserService = new CreateUserService(users)
 
         const result = createUserService.perform({
           name: 'John',
@@ -46,7 +52,7 @@ describe('CreateUserService', () => {
 
     describe('but the password is not equal to password confirmation', () => {
       it('returns password confirmation error at both password and password_confirmation fields', () => {
-        const createUserService = new CreateUserService()
+        const createUserService = new CreateUserService(users)
 
         const result = createUserService.perform({
           name: 'John',
@@ -68,11 +74,19 @@ describe('CreateUserService', () => {
 
     describe('but the email provided is already in use', () => {
       it('returns an already in use error at email field', () => {
-        const createUserService = new CreateUserService()
+        const createUserService = new CreateUserService(users)
+
+        const alreadyInUseEmail = 'already_in_use@email.com'
+        users.push({
+          id: users.length + 1,
+          name: 'Other User',
+          email: alreadyInUseEmail,
+          password: '1234556767',
+        })
 
         const result = createUserService.perform({
           name: 'John',
-          email: 'already_in_use@email.com',
+          email: alreadyInUseEmail,
           password: '12345678',
           password_confirmation: '12345678',
         })
@@ -86,11 +100,31 @@ describe('CreateUserService', () => {
         })
       })
     })
+
+    describe('and all the validation pass', () => {
+      it('creates a new user', () => {
+        const createUserService = new CreateUserService(users)
+
+        const result = createUserService.perform({
+          name: 'John',
+          email: 'john@email.com',
+          password: '12345678',
+          password_confirmation: '12345678',
+        })
+
+        expect(users.length).toBe(1)
+        expect(result).toMatchObject({
+          success: true,
+          errors: null,
+          data: { id: users[users.length - 1].id },
+        })
+      })
+    })
   })
 
   describe('when missing required fields', () => {
     it('returns an blank error on all missing required fields', () => {
-      const createUserService = new CreateUserService()
+      const createUserService = new CreateUserService(users)
 
       const result = createUserService.perform({
         name: '',

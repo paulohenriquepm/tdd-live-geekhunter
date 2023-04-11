@@ -5,6 +5,13 @@ type CreateUserServiceData = {
   password_confirmation: string
 }
 
+export type User = {
+  id: number
+  name: string
+  email: string
+  password: string
+}
+
 type Error = {
   [key: string]: string
 }
@@ -24,7 +31,14 @@ const validateLength = ({ name, password, errors }: ValidateLengthType) => {
 }
 
 class CreateUserService {
-  perform({ name, password, password_confirmation }: CreateUserServiceData) {
+  constructor(private users: User[]) {}
+
+  perform({
+    name,
+    email,
+    password,
+    password_confirmation,
+  }: CreateUserServiceData) {
     const errors = {}
 
     validateLength({ name, password, errors })
@@ -52,15 +66,45 @@ class CreateUserService {
       }
     }
 
+    if (email) {
+      const userExists = this.users.find((user) => user.email === email)
+
+      if (userExists) {
+        return {
+          success: false,
+          errors: {
+            email: 'already_in_use',
+          },
+          data: null,
+        }
+      }
+    }
+
+    if (!name && !email && !password && !password_confirmation) {
+      return {
+        success: false,
+        errors: {
+          name: 'blank',
+          email: 'blank',
+          password: 'blank',
+          password_confirmation: 'blank',
+        },
+        data: null,
+      }
+    }
+
+    const user = {
+      id: this.users.length + 1,
+      name,
+      email,
+      password,
+    }
+    this.users.push(user)
+
     return {
-      success: false,
-      errors: {
-        name: 'blank',
-        email: 'blank',
-        password: 'blank',
-        password_confirmation: 'blank',
-      },
-      data: null,
+      success: true,
+      errors: null,
+      data: { id: user.id },
     }
   }
 }
