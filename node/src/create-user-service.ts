@@ -1,0 +1,3 @@
+class CreateUserService {}
+
+export { CreateUserService }
